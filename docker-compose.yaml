@@ -1,0 +1,92 @@
+services:
+  user-service:
+    build:
+      context: ./user-service
+    container_name: user-service
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./logs/user:/app/logs/user
+    networks:
+      - microservices-net
+
+  order-service:
+    build:
+      context: ./order-service
+    container_name: order-service
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./logs/order:/app/logs/order
+    networks:
+      - microservices-net
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    ports:
+      - "9200:9200"
+    networks:
+      - microservices-net
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.13.0
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    networks:
+      - microservices-net
+    depends_on:
+      - elasticsearch
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.13.0
+    container_name: logstash
+    ports:
+      - "5044:5044"
+      - "9600:9600"
+    volumes:
+      - ./logstash/pipeline:/usr/share/logstash/pipeline
+    networks:
+      - microservices-net
+    depends_on:
+      - elasticsearch
+  filebeat:
+    build: ./filebeat
+    container_name: filebeat
+    user: root
+    networks:
+      - microservices-net
+    depends_on:
+      - logstash
+    volumes:
+      - ./logs/user:/var/log/user-service
+      - ./logs/order:/var/log/order-service
+      - ./filebeat-logs:/var/log/filebeat
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./sql/create-databases.sql:/docker-entrypoint-initdb.d/create-databases.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - microservices-net
+
+volumes:
+  pgdata:
+  user-logs:
+  order-logs:
+
+networks:
+  microservices-net:
