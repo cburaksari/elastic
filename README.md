@@ -7,16 +7,13 @@ This project sets up a centralized logging pipeline for Dockerized microservices
 ## 🏗️ Architecture
 
 +------------------+ +---------+ +---------+ +---------------+ +--------+
-| user-service.log +----> | | | | | | | |
-| order-service.log| | Filebeat+-----> | Logstash+-----> | Elasticsearch +-----> | Kibana |
-+------------------+ | | | | | | | |
-+---------+ +---------+ +---------------+ +--------+
-
+| user-service.log , order-service.log +-----> Filebeat +-----> | Logstash +-----> | Elasticsearch +-----> | Kibana |
++------------------+ +---------+ +---------+ +---------------+ +--------+
 
 ---
 
 ## 📁 Project Structure
-
+.
 ├── docker-compose.yml
 ├── logs/
 │ ├── user/
