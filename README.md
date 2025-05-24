@@ -12,23 +12,6 @@ This project sets up a centralized logging pipeline for Dockerized microservices
 
 ---
 
-## 📁 Project Structure
-.
-├── docker-compose.yml
-├── logs/
-│ ├── user/
-│ │ └── user-service.log
-│ └── order/
-│ └── order-service.log
-├── filebeat/
-│ ├── filebeat.yml
-├── logstash/
-│ └── pipeline/
-│ └── logstash.conf
-
-
----
-
 ## ▶️ Running the Stack
 
 docker-compose up --build
